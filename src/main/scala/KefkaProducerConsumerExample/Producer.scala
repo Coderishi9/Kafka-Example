@@ -1,5 +1,8 @@
+package KefkaProducerConsumerExample
+
 import java.util.Properties
-import org.apache.kafka.clients.producer._
+
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 
 object Producer {
 

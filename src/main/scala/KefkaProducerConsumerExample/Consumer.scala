@@ -1,6 +1,10 @@
+package KefkaProducerConsumerExample
+
 import java.util
+
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import scala.collection.JavaConverters._
+
+import scala.jdk.CollectionConverters.iterableAsScalaIterableConverter
 
 object Consumer {
 
@@ -9,7 +13,7 @@ object Consumer {
 
     import java.util.Properties
 
-    val TOPIC = "test"
+    val TOPIC = "testRun2"
 
     val props = new Properties()
     props.put("bootstrap.servers", "localhost:9092")
