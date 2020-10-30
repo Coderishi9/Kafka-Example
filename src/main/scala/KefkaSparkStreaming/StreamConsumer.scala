@@ -1,5 +1,9 @@
 package KefkaSparkStreaming
-
+import org.json.JSONObject
+import com.sksamuel.elastic4s.ElasticApi.{RichFuture, indexInto}
+import com.sksamuel.elastic4s.ElasticDsl.IndexHandler
+import com.sksamuel.elastic4s.{ElasticClient, ElasticProperties}
+import com.sksamuel.elastic4s.http.JavaClient
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.spark.SparkConf
@@ -20,17 +24,32 @@ object StreamConsumer {
     val sc = ssc.sparkContext
     sc.setLogLevel("OFF")
     val topicSet = Set("testRun")
-    val message = KafkaUtils.createDirectStream[String,String](
+
+
+    val mmsg = KafkaUtils.createDirectStream[String,String](
       ssc,
       LocationStrategies.PreferConsistent,
-      ConsumerStrategies.Subscribe[String,String](topicSet,kafkaParams)
+      ConsumerStrategies.Subscribe[String,String](Set("testdata"),kafkaParams)
     )
 
-    val words = message.map(record => (s"File Name: ${record.key()}, No. of words in file: ${record.value().length}"))
-    words.print()
+    val esClient =  ElasticClient(JavaClient(ElasticProperties(s"http://${sys.env.getOrElse("ES_HOST", "127.0.0.1")}:${sys.env.getOrElse("ES_PORT", "9200")}")))
 
+
+    val jsonObject:JSONObject = new JSONObject("{hello: hey}")
+    val word = mmsg.map(record => {
+      val res = esClient.execute{
+        indexInto("testing1234").doc(jsonObject.toString)
+      }.await
+      println(res)
+    }
+    )
+
+    word.print()
+
+
+    esClient.close()
     ssc.start()
-    ssc.stop(true,true)
+    ssc.awaitTermination()
   }
 
 }

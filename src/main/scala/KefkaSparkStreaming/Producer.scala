@@ -30,17 +30,18 @@ object Producer {
   def main(args: Array[String]): Unit = {
     val dir = "src/main/resources"
     val files = getListOfFiles(dir)
-    for(i <- files){
+    val f2 = getListOfFiles("src/main/resources/abc")
+
+    for(i <- f2){
       val contents = Source.fromFile(i).getLines.mkString
       val key = i.getName
-
-
-      val record = new ProducerRecord("testRun", key, contents)
+      val record = new ProducerRecord("ishwar", key, contents)
       producer.send(record)
     }
-    val record = new ProducerRecord("testRun2", "End", "the end " + new java.util.Date)
-    producer.send(record)
+
     producer.close()
+
+
 
   }
 
